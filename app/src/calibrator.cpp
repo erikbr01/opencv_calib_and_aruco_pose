@@ -20,7 +20,7 @@ using namespace std;
 // Program to calibrate a camera
 
 // edge length of printed checkerboard squares in metres
-const float calibrationSquareDimension = 0.0146f;
+const float calibrationSquareDimension = 0.02f;
 // size in terms of numbers of corners inside the chessboard
 const Size chessboardDimensions = Size(6, 9);
 
@@ -44,7 +44,7 @@ void getChessboardCorners(vector<Mat> images,
   for (vector<Mat>::iterator iter = images.begin(); iter != images.end();
        iter++) {
     vector<Point2f> pointBuf;
-    bool found = findChessboardCorners(*iter, Size(9, 6), pointBuf,
+    bool found = findChessboardCorners(*iter, chessboardDimensions, pointBuf,
                                        CALIB_CB_ADAPTIVE_THRESH |
                                            CALIB_CB_NORMALIZE_IMAGE);
 
@@ -65,7 +65,6 @@ void getChessboardCorners(vector<Mat> images,
 void cameraCalibration(vector<Mat> calibrationImages, Size boardSize,
                        float squareEdgeLength, Mat &cameraMatrix,
                        Mat &distanceCoefficients) {
-  cout << "entering camera calibration" << endl;
   vector<vector<Point2f>> checkerboardImageSpacePoints;
   getChessboardCorners(calibrationImages, checkerboardImageSpacePoints, false);
 
@@ -81,15 +80,12 @@ void cameraCalibration(vector<Mat> calibrationImages, Size boardSize,
   calibrateCamera(worldSpaceCornerPoints, checkerboardImageSpacePoints,
                   boardSize, cameraMatrix, distanceCoefficients, rVectors,
                   tVectors);
-
-  cout << "done calibrating" << endl;
 }
 
 // save the calibration values to a file
 bool saveCameraCalibration(string name, Mat cameraMatrix,
                            Mat distanceCoefficients) {
 
-  cout << "entering calibration" << endl;
   ofstream outStream(name);
   if (outStream) {
 
@@ -181,7 +177,7 @@ int Calibrator::camera_calib(Mat &cameraMatrix, Mat &distanceCoefficients) {
 
   vector<vector<Point2f>> markerCorners, rejectedCandidates;
 
-  VideoCapture vid(2);
+  VideoCapture vid(1);
 
   if (!vid.isOpened()) {
     return 0;
@@ -236,8 +232,10 @@ int Calibrator::camera_calib(Mat &cameraMatrix, Mat &distanceCoefficients) {
         cameraCalibration(savedImages, chessboardDimensions,
                           calibrationSquareDimension, cameraMatrix,
                           distanceCoefficients);
+        cout << "trying to save" << endl;
         saveCameraCalibration("camCalibration", cameraMatrix,
                               distanceCoefficients);
+        cout << "Calibration done, file saved" << endl;
       }
 
     default:

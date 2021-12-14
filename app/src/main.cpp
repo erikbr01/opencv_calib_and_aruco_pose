@@ -23,7 +23,7 @@ void detectMarker(ArucoFunctions detector) {
   namedWindow("Display window");
 
   // Get first webcam capture
-  VideoCapture cap(0);
+  VideoCapture cap(1);
 
   if (!cap.isOpened()) {
     cout << "cannot open camera";
@@ -57,7 +57,7 @@ int startWebcamMonitoring(const Mat &cameraMatrix,
   Ptr<aruco::Dictionary> markerDictionary = aruco::getPredefinedDictionary(
       aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
 
-  VideoCapture vid(2);
+  VideoCapture vid(1);
 
   if (!vid.isOpened()) {
     return -1;
@@ -95,11 +95,13 @@ int main() {
 
   ArucoFunctions detector;
   Calibrator calib;
-  // calib.camera_calib(cameraMatrix, distanceCoefficients);
+  calib.camera_calib(cameraMatrix, distanceCoefficients);
   calib.loadCamerCalibration("camCalibration", cameraMatrix,
                              distanceCoefficients);
   cout << "Starting webcam monitoring" << endl;
   startWebcamMonitoring(cameraMatrix, distanceCoefficients,
                         arucoSquareDimension);
+
+  // detectMarker(detector);
   return 0;
 }
